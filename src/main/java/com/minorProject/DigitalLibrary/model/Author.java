@@ -1,5 +1,6 @@
 package com.minorProject.DigitalLibrary.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
@@ -26,5 +27,6 @@ public class Author {
     private String email;
 
     @OneToMany(mappedBy = "author")
+    @JsonIgnoreProperties({"student","txnList","author"})
     private List<Book> bookList;
 }

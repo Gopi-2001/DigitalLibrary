@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class returnTxnRequest {
-    private String email;
+    private String studentEmail;
     private String bookNo;
+    private int txnId;
 }

@@ -67,11 +67,11 @@ public class BookService {
                     case BOOK_NO :
                         return bookRepository.findByBookNo(value);
                     case COST:
-                        return bookRepository.findByCost(value);
+                        return bookRepository.findByCost(Integer.parseInt(value));
                     case PAGES:
-                        return bookRepository.findByPages(value);
+                        return bookRepository.findByPages(Integer.parseInt(value));
                 }
-            case GREATER_EQUAL:
+            case GREATER_THAN:
                 switch (filterBookBy){
                     case COST:
                         return bookRepository.findByCostGreaterThan(Integer.parseInt(value));
@@ -88,5 +88,8 @@ public class BookService {
             default:
                 return new ArrayList<>();
         }
+    }
+
+    public void updateBookSave(Book book) {
     }
 }

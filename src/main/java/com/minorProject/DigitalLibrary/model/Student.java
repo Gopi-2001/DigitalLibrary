@@ -1,5 +1,6 @@
 package com.minorProject.DigitalLibrary.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -35,8 +36,10 @@ public class Student {
     private Date updatedOn;
 
     @OneToMany(mappedBy = "student")
+    @JsonIgnoreProperties({"student","txnList","author"})
     private List<Book> book;
 
     @OneToMany(mappedBy = "student")
+    @JsonIgnoreProperties({"student","book"})
     private List<Txn> txn;
 }

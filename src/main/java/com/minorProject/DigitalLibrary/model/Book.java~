@@ -40,10 +40,10 @@ public class Book {
 
     @ManyToOne
     @JoinColumn(name = "student_id")
-    @JsonIgnoreProperties({"book","txn"})
+    @JsonIgnoreProperties({"book"})
     private Student student;
 
     @OneToMany(mappedBy = "book")
-    @JsonIgnoreProperties({"book","student"})
+    @JsonIgnoreProperties({"book"})
     private List<Txn> txnList;
 }

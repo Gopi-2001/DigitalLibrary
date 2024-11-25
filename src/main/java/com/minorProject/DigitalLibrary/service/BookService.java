@@ -89,4 +89,8 @@ public class BookService {
                 return new ArrayList<>();
         }
     }
+
+    public void updateBookSave(Book book) {
+        bookRepository.save(book);
+    }
 }
