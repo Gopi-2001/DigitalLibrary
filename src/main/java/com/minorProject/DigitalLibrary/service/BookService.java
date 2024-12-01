@@ -41,22 +41,23 @@ public class BookService {
         book.setAuthor(author);
 
         Book savedBook = bookRepository.save(book);
-        redisTemplate.opsForList().leftPushAll(BOOK_KEY, savedBook);
-        redisTemplate.opsForList().leftPushAll(BOOK_KEY + savedBook.getId(), savedBook);
-        redisTemplate.opsForList().leftPushAll(BOOK_KEY + savedBook.getBookName(), savedBook);
-        redisTemplate.opsForList().leftPushAll(BOOK_KEY + savedBook.getBookNo(), savedBook);
 
-        redisTemplate.expire(BOOK_KEY, Duration.ofMinutes(10));
+//        redisTemplate.opsForList().leftPushAll(BOOK_KEY, savedBook);
+//        redisTemplate.opsForList().leftPushAll(BOOK_KEY + savedBook.getId(), savedBook);
+//        redisTemplate.opsForList().leftPushAll(BOOK_KEY + savedBook.getBookName(), savedBook);
+//        redisTemplate.opsForList().leftPushAll(BOOK_KEY + savedBook.getBookNo(), savedBook);
+//
+//        redisTemplate.expire(BOOK_KEY, Duration.ofMinutes(10));
 
         return savedBook;
     }
 
     public Book getBook(int id) {
-        List<Object> bookList = redisTemplate.opsForList().range(BOOK_KEY + id, 0, -1);
-
-        if(bookList != null && !bookList.isEmpty()) {
-            return (Book) bookList.get(0);
-        }
+//        List<Object> bookList = redisTemplate.opsForList().range(BOOK_KEY + id, 0, -1);
+//
+//        if(bookList != null && !bookList.isEmpty()) {
+//            return (Book) bookList.get(0);
+//        }
 
         return bookRepository.findById(id).orElse(null);
     }
@@ -64,11 +65,11 @@ public class BookService {
 
     public List<Book> getAllBooks() {
 
-        List<Object> books = redisTemplate.opsForList().range(BOOK_KEY, 0, -1);
-
-        if(books != null) {
-            return books.stream().map(book -> (Book) book).collect(Collectors.toList());
-        }
+//        List<Object> books = redisTemplate.opsForList().range(BOOK_KEY, 0, -1);
+//
+//        if(books != null) {
+//            return books.stream().map(book -> (Book) book).collect(Collectors.toList());
+//        }
         return bookRepository.findAll();
     }
 
