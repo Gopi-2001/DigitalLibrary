@@ -1,6 +1,7 @@
 package com.minorProject.DigitalLibrary.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.minorProject.DigitalLibrary.enums.TxnStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,36 +11,37 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.util.Date;
-import java.util.List;
 
 @Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Student {
+public class Txn {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    private String name;
+    private int paidAmount;
 
-    @Column(unique = true, nullable = false)
-    private String email;
-
-    private String address;
+    private int fine;
 
     @CreationTimestamp
     private Date createdOn;
 
     @UpdateTimestamp
-    private Date updatedOn;
+    private Date updateOn;
 
-    @OneToMany(mappedBy = "student")
+    @Enumerated(value = EnumType.STRING)
+    private TxnStatus txnStatus;
+
+    @ManyToOne
+    @JoinColumn(name = "student_id")
+    @JsonIgnoreProperties({"txn","book"})
+    private Student student;
+
+    @ManyToOne
+    @JoinColumn(name = "book_id")
     @JsonIgnoreProperties({"student","txnList","author"})
-    private List<Book> book;
-
-    @OneToMany(mappedBy = "student")
-    @JsonIgnoreProperties({"student","book"})
-    private List<Txn> txn;
+    private Book book;
 }

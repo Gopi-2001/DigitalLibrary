@@ -9,10 +9,13 @@ import com.minorProject.DigitalLibrary.enums.BookType;
 import com.minorProject.DigitalLibrary.repository.AuthorRepository;
 import com.minorProject.DigitalLibrary.repository.BookRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class BookService {
@@ -21,6 +24,11 @@ public class BookService {
 
     @Autowired
     private AuthorRepository authorRepository;
+
+    @Autowired
+    private RedisTemplate<String,Object> redisTemplate; // <String,Object>
+
+    private final String BOOK_KEY = "book";
 
     public Book createBook(createBookRequest createBookRequest) {
         Author author = authorRepository.findByEmail(createBookRequest.getAuthorEmail());
@@ -31,20 +39,45 @@ public class BookService {
 
         Book book = createBookRequest.toBook();
         book.setAuthor(author);
-        return bookRepository.save(book);
+
+        Book savedBook = bookRepository.save(book);
+        redisTemplate.opsForList().leftPushAll(BOOK_KEY, savedBook);
+        redisTemplate.opsForList().leftPushAll(BOOK_KEY + savedBook.getId(), savedBook);
+        redisTemplate.opsForList().leftPushAll(BOOK_KEY + savedBook.getBookName(), savedBook);
+        redisTemplate.opsForList().leftPushAll(BOOK_KEY + savedBook.getBookNo(), savedBook);
+
+        redisTemplate.expire(BOOK_KEY, Duration.ofMinutes(10));
+
+        return savedBook;
     }
 
     public Book getBook(int id) {
+        List<Object> bookList = redisTemplate.opsForList().range(BOOK_KEY + id, 0, -1);
+
+        if(bookList != null && !bookList.isEmpty()) {
+            return (Book) bookList.get(0);
+        }
+
         return bookRepository.findById(id).orElse(null);
     }
 
 
     public List<Book> getAllBooks() {
+
+        List<Object> books = redisTemplate.opsForList().range(BOOK_KEY, 0, -1);
+
+        if(books != null) {
+            return books.stream().map(book -> (Book) book).collect(Collectors.toList());
+        }
         return bookRepository.findAll();
     }
 
 
     public Book updateBook(int id, createBookRequest createBookRequest) {
+
+        redisTemplate.opsForList().leftPushAll(BOOK_KEY + id, createBookRequest);
+
+
        Book book = bookRepository.findById(id).get();
 
        book.setBookName(createBookRequest.getBookName());
@@ -63,6 +96,14 @@ public class BookService {
             case EQUALS :
                 switch (filterBookBy){
                     case BOOK_NAME :
+                        List<Object> bookList = redisTemplate.opsForList().range(BOOK_KEY + value, 0, -1);
+
+                        if(bookList !=null){
+                            return bookList.stream()
+                                    .map(book -> (Book) book)
+                                    .toList();
+                        }
+
                         return bookRepository.findByBookName(value);
                     case BOOK_NO :
                         return bookRepository.findByBookNo(value);
